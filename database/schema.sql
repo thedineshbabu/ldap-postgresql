@@ -1,19 +1,22 @@
 -- PostgreSQL Schema for LDAP to PostgreSQL Migration
--- This script creates the necessary tables for storing client and user data
+-- This script creates the necessary tables for storing client and user data with UUID primary keys
 
--- Create clients table
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create clients table with UUID primary key
 CREATE TABLE IF NOT EXISTS clients (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     client_id VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create users table
+-- Create users table with UUID primary key and UUID foreign key
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
     username VARCHAR(255) NOT NULL,
     first_name VARCHAR(255),
     last_name VARCHAR(255),

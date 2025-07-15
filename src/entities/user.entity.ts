@@ -3,19 +3,19 @@ import { Client } from './client.entity';
 
 /**
  * User Entity
- * Represents a user from LDAP migrated to PostgreSQL
+ * Represents a user from LDAP migrated to PostgreSQL with UUID primary key
  */
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ 
-    type: 'int', 
+    type: 'uuid', 
     nullable: false,
-    comment: 'Foreign key to clients table'
+    comment: 'Foreign key to clients table (UUID)'
   })
-  client_id: number;
+  client_id: string;
 
   @Column({ 
     type: 'varchar', 
@@ -87,10 +87,10 @@ export class User {
   /**
    * Create a new User instance
    * @param username - LDAP uid
-   * @param clientId - Database client ID
+   * @param clientId - Database client UUID
    * @param ldapDn - Full LDAP DN
    */
-  constructor(username?: string, clientId?: number, ldapDn?: string) {
+  constructor(username?: string, clientId?: string, ldapDn?: string) {
     if (username) {
       this.username = username;
     }

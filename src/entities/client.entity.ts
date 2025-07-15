@@ -3,12 +3,12 @@ import { User } from './user.entity';
 
 /**
  * Client Entity
- * Represents a client organization unit from LDAP
+ * Represents a client organization unit from LDAP with UUID primary key
  */
 @Entity('clients')
 export class Client {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ 
     type: 'varchar', 

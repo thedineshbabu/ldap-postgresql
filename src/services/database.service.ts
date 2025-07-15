@@ -75,9 +75,12 @@ export class DatabaseService implements OnModuleDestroy {
   async initializeTables(): Promise<void> {
     try {
       // Create tables if they don't exist
+      // Enable UUID extension
+      await this.dataSource.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+
       await this.dataSource.query(`
         CREATE TABLE IF NOT EXISTS clients (
-          id SERIAL PRIMARY KEY,
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
           client_id VARCHAR(255) UNIQUE NOT NULL,
           name VARCHAR(255),
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -87,8 +90,8 @@ export class DatabaseService implements OnModuleDestroy {
 
       await this.dataSource.query(`
         CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
-          client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
           username VARCHAR(255) NOT NULL,
           first_name VARCHAR(255),
           last_name VARCHAR(255),
@@ -155,10 +158,10 @@ export class DatabaseService implements OnModuleDestroy {
   /**
    * Upsert user record
    * @param userData - User data from LDAP
-   * @param clientId - Database client ID
+   * @param clientId - Database client UUID
    * @returns Promise<User>
    */
-  async upsertUser(userData: any, clientId: number): Promise<User> {
+  async upsertUser(userData: any, clientId: string): Promise<User> {
     try {
       let user = await this.userRepository.findOne({ 
         where: { client_id: clientId, username: userData.uid } 

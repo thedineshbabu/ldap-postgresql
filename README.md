@@ -19,8 +19,8 @@ dc=example,dc=com
         └── uid=user3
 
 PostgreSQL Schema:
-├── clients (id, client_id, name, timestamps)
-└── users (id, client_id, username, first_name, last_name, email, password_hash, ldap_dn, timestamps)
+├── clients (id [UUID], client_id, name, timestamps)
+└── users (id [UUID], client_id [UUID], username, first_name, last_name, email, password_hash, ldap_dn, timestamps)
 ```
 
 ## 🚀 Features
@@ -33,6 +33,7 @@ PostgreSQL Schema:
 - **Configuration Validation**: Pre-flight checks for connections and settings
 - **Progress Tracking**: Real-time progress reporting
 - **Idempotent Operations**: Safe to run multiple times
+- **UUID Primary Keys**: Uses UUIDs for better data integrity and distribution
 
 ## 📋 Prerequisites
 
@@ -102,6 +103,8 @@ MAX_CONCURRENT_USERS=10
    ```bash
    psql -d usersdb -f database/schema.sql
    ```
+   
+   **Note**: The schema automatically enables the `uuid-ossp` PostgreSQL extension for UUID generation.
 
 ## 📖 Usage
 

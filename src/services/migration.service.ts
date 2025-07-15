@@ -130,10 +130,10 @@ export class MigrationService {
   /**
    * Process a single user
    * @param userData - User data from LDAP
-   * @param clientId - Database client ID
+   * @param clientId - Database client UUID
    * @param stats - Migration statistics
    */
-  private async processUser(userData: UserData, clientId: number, stats: MigrationStats): Promise<void> {
+  private async processUser(userData: UserData, clientId: string, stats: MigrationStats): Promise<void> {
     try {
       // Convert password hash if present
       let passwordHash = null;
