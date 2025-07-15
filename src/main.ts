@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MigrationService } from './services/migration.service';
+import { DatabaseService } from './services/database.service';
 import { ConfigurationService } from './config/configuration';
 import { logger } from './utils/logger.utils';
 
@@ -14,6 +15,7 @@ async function bootstrap() {
     const args = process.argv.slice(2);
     const isDryRun = args.includes('--dry-run');
     const isValidateConfig = args.includes('--validate-config');
+    const isShowHistory = args.includes('--show-history');
 
     // Set environment variables based on CLI args
     if (isDryRun) {
@@ -51,6 +53,28 @@ async function bootstrap() {
         logger.error('❌ Configuration validation failed');
         process.exit(1);
       }
+    } else if (isShowHistory) {
+      // Show migration history
+      logger.info('Fetching migration history...');
+      const dbService = app.get(DatabaseService);
+      const history = await dbService.getMigrationHistory();
+      
+      if (history.length === 0) {
+        logger.info('No migration history found');
+      } else {
+        logger.info(`Found ${history.length} migration runs:`);
+        history.forEach((run, index) => {
+          const date = new Date(run.migration_date).toLocaleString();
+          const status = run.dry_run ? 'DRY-RUN' : 'LIVE';
+          logger.info(`${index + 1}. ${date} (${status})`);
+          logger.info(`   Clients: ${run.successful_clients}/${run.total_clients}`);
+          logger.info(`   Users: ${run.successful_users}/${run.total_users}`);
+          if (run.failed_clients > 0 || run.failed_users > 0) {
+            logger.warn(`   Failed: ${run.failed_clients} clients, ${run.failed_users} users`);
+          }
+        });
+      }
+      process.exit(0);
     } else {
       // Execute migration
       logger.info('Starting migration process...');

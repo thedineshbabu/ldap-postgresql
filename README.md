@@ -34,6 +34,7 @@ PostgreSQL Schema:
 - **Progress Tracking**: Real-time progress reporting
 - **Idempotent Operations**: Safe to run multiple times
 - **UUID Primary Keys**: Uses UUIDs for better data integrity and distribution
+- **Migration History**: Track all migration runs with detailed statistics
 
 ## 📋 Prerequisites
 
@@ -119,6 +120,9 @@ npm run migrate:dry-run
 
 # Validate configuration only
 npm run validate:config
+
+# Show migration history
+npm run migrate:history
 ```
 
 ### Command Line Options
@@ -218,6 +222,50 @@ npm run test:e2e
 2. Configure test PostgreSQL database
 3. Run with `--dry-run` flag
 4. Verify logs and database state
+
+## 🔄 Multiple Execution Handling
+
+The migration tool is designed to be **idempotent** - it can be safely executed multiple times without causing issues.
+
+### **How It Works:**
+
+1. **Database Safety**: Uses `CREATE TABLE IF NOT EXISTS` and `CREATE EXTENSION IF NOT EXISTS`
+2. **Upsert Operations**: Checks for existing records before creating new ones
+3. **Unique Constraints**: Prevents duplicate entries
+4. **Migration Logging**: Each run is logged separately with statistics
+
+### **Execution Scenarios:**
+
+- **First Run**: Creates tables, inserts all data
+- **Subsequent Runs**: Updates existing records, adds new ones, skips unchanged data
+- **Partial Failures**: Continues processing other records if some fail
+- **Dry Runs**: Tests without making changes
+
+### **Monitoring Multiple Executions:**
+
+```bash
+# Check migration history
+npm run migrate:history
+
+# Example output:
+# Found 3 migration runs:
+# 1. 2024-01-15 10:30:00 (LIVE)
+#    Clients: 5/5
+#    Users: 150/150
+# 2. 2024-01-15 14:30:00 (DRY-RUN)
+#    Clients: 5/5
+#    Users: 155/155
+# 3. 2024-01-16 09:00:00 (LIVE)
+#    Clients: 5/5
+#    Users: 160/160
+```
+
+### **Best Practices:**
+
+1. **Always test with dry-run first**: `npm run migrate:dry-run`
+2. **Monitor migration history**: Check previous runs before executing
+3. **Backup database**: Before major migrations
+4. **Schedule regular runs**: For ongoing synchronization
 
 ## 🔍 Troubleshooting
 

@@ -262,6 +262,66 @@ export class DatabaseService implements OnModuleDestroy {
   }
 
   /**
+   * Get migration history
+   * @returns Promise<Array<MigrationLog>>
+   */
+  async getMigrationHistory(): Promise<Array<any>> {
+    try {
+      const result = await this.dataSource.query(`
+        SELECT 
+          id,
+          migration_date,
+          total_clients,
+          total_users,
+          successful_clients,
+          successful_users,
+          failed_clients,
+          failed_users,
+          dry_run,
+          error_log
+        FROM migration_log 
+        ORDER BY migration_date DESC
+        LIMIT 10
+      `);
+
+      return result;
+    } catch (error) {
+      logger.error('Get migration history failed', { error: error.message });
+      return [];
+    }
+  }
+
+  /**
+   * Get last migration run
+   * @returns Promise<MigrationLog | null>
+   */
+  async getLastMigrationRun(): Promise<any | null> {
+    try {
+      const result = await this.dataSource.query(`
+        SELECT 
+          id,
+          migration_date,
+          total_clients,
+          total_users,
+          successful_clients,
+          successful_users,
+          failed_clients,
+          failed_users,
+          dry_run,
+          error_log
+        FROM migration_log 
+        ORDER BY migration_date DESC
+        LIMIT 1
+      `);
+
+      return result.length > 0 ? result[0] : null;
+    } catch (error) {
+      logger.error('Get last migration run failed', { error: error.message });
+      return null;
+    }
+  }
+
+  /**
    * Cleanup on module destroy
    */
   async onModuleDestroy() {

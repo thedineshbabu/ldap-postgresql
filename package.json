@@ -18,7 +18,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate": "ts-node src/main.ts",
     "migrate:dry-run": "ts-node src/main.ts --dry-run",
-    "validate:config": "ts-node src/main.ts --validate-config"
+    "validate:config": "ts-node src/main.ts --validate-config",
+    "migrate:history": "ts-node src/main.ts --show-history"
   },
   "repository": {
     "type": "git",
